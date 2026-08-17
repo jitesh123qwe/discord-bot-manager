@@ -20,7 +20,6 @@ def set_bot_instance(bot):
 def index():
     return render_template('admin.html')
 
-# ---------- CHANNELS ----------
 @app.route('/api/channels', methods=['GET'])
 def api_get_channels():
     return jsonify(get_all_channels())
@@ -31,7 +30,6 @@ def api_update_channel(channel_id):
     set_channel_permission(channel_id, data.get('channel_name', ''), data)
     return jsonify({"success": True})
 
-# ---------- SEND MESSAGE ----------
 @app.route('/api/send', methods=['POST'])
 def api_send():
     if request.headers.get('X-API-Key') != API_SECRET:
@@ -97,7 +95,6 @@ def api_send():
         loop.close()
         return jsonify({"error": str(e)}), 500
 
-# ---------- DELETE / PIN ----------
 @app.route('/api/delete', methods=['POST'])
 def api_delete():
     if request.headers.get('X-API-Key') != API_SECRET:
@@ -144,7 +141,6 @@ def api_pin():
         loop.close()
         return jsonify({"error": str(e)}), 500
 
-# ---------- PRODUCTS ----------
 @app.route('/api/products', methods=['GET'])
 def api_get_products():
     return jsonify(get_products())
@@ -165,7 +161,6 @@ def api_delete_product(pid):
     delete_product(pid)
     return jsonify({"success": True})
 
-# ---------- TEMPLATES ----------
 @app.route('/api/templates', methods=['GET'])
 def api_get_templates():
     return jsonify(get_templates())
@@ -178,7 +173,6 @@ def api_save_template():
     save_template(data['name'], data['content'])
     return jsonify({"success": True})
 
-# ---------- LOGS ----------
 @app.route('/api/logs', methods=['GET'])
 def api_get_logs():
     channel_id = request.args.get('channel_id')
