@@ -3,31 +3,482 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>⚡ Bot Admin Panel</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: #0a0a12; 
+            color: #dcddde; 
+            padding: 30px;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { 
+            background: linear-gradient(135deg, #5865F2, #4752C4); 
+            padding: 25px; 
+            border-radius: 16px; 
+            margin-bottom: 30px; 
+            text-align: center;
         }
-        h1 {
-            color: #333;
+        .header h1 { font-size: 28px; color: #fff; }
+        .header p { color: rgba(255,255,255,0.8); margin-top: 5px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn { 
+            padding: 10px 24px; 
+            background: #1a1a2e; 
+            border: none; 
+            border-radius: 12px; 
+            color: #aaa; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: 0.3s;
         }
+        .tab-btn:hover { background: #2a2a4e; color: #fff; }
+        .tab-btn.active { background: #5865F2; color: #fff; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .card { 
+            background: #151525; 
+            border-radius: 16px; 
+            padding: 25px; 
+            border: 1px solid #252540;
+            margin-bottom: 20px;
+        }
+        .card h2 { font-size: 18px; margin-bottom: 15px; color: #b5b5d0; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        
+        label { display: block; font-size: 13px; color: #9a9ab0; margin-bottom: 5px; font-weight: 500; }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px 16px; 
+            background: #0d0d1a; 
+            border: 1px solid #2a2a4a; 
+            border-radius: 10px; 
+            color: #eee; 
+            font-size: 14px; 
+            margin-bottom: 12px;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #5865F2; }
+        textarea { min-height: 100px; resize: vertical; }
+        .row { display: flex; gap: 15px; }
+        .row > * { flex: 1; }
+        
+        .btn { 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .btn-primary { background: #5865F2; color: #fff; }
+        .btn-primary:hover { background: #4752C4; }
+        .btn-success { background: #2ecc71; color: #fff; }
+        .btn-success:hover { background: #27ae60; }
+        .btn-danger { background: #e74c3c; color: #fff; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-outline { background: transparent; border: 1px solid #2a2a4a; color: #ccc; }
+        .btn-outline:hover { background: #1f1f35; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        
+        .channel-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 0; 
+            border-bottom: 1px solid #1a1a2e; 
+        }
+        .channel-item:last-child { border: none; }
+        .channel-item .perms { display: flex; gap: 15px; flex-wrap: wrap; }
+        .channel-item .perms label { margin-bottom: 0; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+        .channel-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #5865F2; margin: 0; }
+        
+        .product-item { 
+            background: #0d0d1a; 
+            padding: 12px 15px; 
+            border-radius: 10px; 
+            margin-bottom: 8px; 
+            border-left: 4px solid #5865F2;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .product-item .info { display: flex; flex-direction: column; gap: 3px; }
+        .product-item .price { color: #2ecc71; font-weight: bold; }
+        
+        .toast {
+            position: fixed; bottom: 30px; right: 30px;
+            background: #1e1e32; border-left: 4px solid #2ecc71;
+            padding: 15px 25px; border-radius: 12px;
+            display: none; font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+            z-index: 999; color: #fff;
+        }
+        .toast.error { border-left-color: #e74c3c; }
+        
+        .log-item {
+            background: #0d0d1a; padding: 12px; border-radius: 8px;
+            margin-bottom: 8px; display: flex; justify-content: space-between;
+            align-items: center;
+        }
+        .log-item .content { font-size: 13px; color: #aaa; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Admin Dashboard</h1>
-        <p>Welcome to the Discord Bot Manager Admin Panel</p>
+
+<div class="container">
+    <div class="header">
+        <h1>⚡ ELEXIR XMODZYT</h1>
+        <p>Admin Panel • Manage your server channels</p>
     </div>
-</body>
-</html>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('send')">📤 Send</button>
+        <button class="tab-btn" onclick="showTab('products')">📦 Products</button>
+        <button class="tab-btn" onclick="showTab('channels')">🔧 Channels</button>
+        <button class="tab-btn" onclick="showTab('templates')">📋 Templates</button>
+        <button class="tab-btn" onclick="showTab('logs')">📜 Logs</button>
+    </div>
+
+    <!-- ==================== TAB: SEND ==================== -->
+    <div id="tab-send" class="tab-content active">
+        <div class="card">
+            <h2>📤 Send Message</h2>
+            <div class="row">
+                <div>
+                    <label>Channel</label>
+                    <select id="sendChannel"></select>
+                </div>
+                <div>
+                    <label>File Upload URL</label>
+                    <input id="sendFileUrl" placeholder="https://example.com/image.jpg">
+                </div>
+            </div>
+            <label>Message Content (Supports Markdown)</label>
+            <textarea id="sendContent" placeholder="**Bold** *Italic* __Underline__"></textarea>
+            
+            <div class="row">
+                <div>
+                    <label>Embed Title</label>
+                    <input id="sendTitle" placeholder="Product / Announcement">
+                </div>
+                <div>
+                    <label>Embed Color</label>
+                    <input id="sendColor" type="color" value="#5865F2">
+                </div>
+            </div>
+            <label>Embed Description</label>
+            <textarea id="sendDesc" placeholder="Description here..."></textarea>
+            <label>Fields (JSON format)</label>
+            <input id="sendFields" placeholder='[{"name":"Price","value":"500 INR","inline":true}]'>
+            <div class="row">
+                <div>
+                    <label>Image URL</label>
+                    <input id="sendImage" placeholder="https://example.com/banner.jpg">
+                </div>
+                <div>
+                    <label>Footer</label>
+                    <input id="sendFooter" placeholder="Powered by Elexir Xmodzyt">
+                </div>
+            </div>
+            
+            <button class="btn btn-success" onclick="sendMessage()">🚀 Send Message</button>
+            <span id="sendStatus" style="margin-left:15px;color:#aaa;"></span>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: PRODUCTS ==================== -->
+    <div id="tab-products" class="tab-content">
+        <div class="grid">
+            <div class="card">
+                <h2>➕ Add Product</h2>
+                <input id="prodName" placeholder="Product Name">
+                <input id="prodCategory" placeholder="Category (APK/EXE/Tool)">
+                <div class="row">
+                    <input id="prodPrice" placeholder="Price (500 INR)">
+                    <input id="prodValidity" placeholder="Validity (7 Days)">
+                </div>
+                <textarea id="prodFeatures" placeholder="Features (comma separated)"></textarea>
+                <input id="prodImage" placeholder="Image URL">
+                <input id="prodChannel" placeholder="Channel ID">
+                <button class="btn btn-primary" onclick="addProduct()">💾 Save Product</button>
+            </div>
+            <div class="card">
+                <h2>📋 Products</h2>
+                <div id="productList">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: CHANNELS ==================== -->
+    <div id="tab-channels" class="tab-content">
+        <div class="card">
+            <h2>🔧 Channel Permissions</h2>
+            <div id="channelList">Loading...</div>
+            <button class="btn btn-outline" onclick="syncChannels()" style="margin-top:15px;">🔄 Sync Channels</button>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: TEMPLATES ==================== -->
+    <div id="tab-templates" class="tab-content">
+        <div class="grid">
+            <div class="card">
+                <h2>💾 Save Template</h2>
+                <input id="tplName" placeholder="Template Name (e.g. Rules)">
+                <textarea id="tplContent" placeholder="Template content..."></textarea>
+                <button class="btn btn-primary" onclick="saveTemplate()">💾 Save</button>
+            </div>
+            <div class="card">
+                <h2>📂 Load Template</h2>
+                <select id="loadTemplateSelect"><option>Loading...</option></select>
+                <button class="btn btn-outline" onclick="loadSelectedTemplate()">📥 Load to Send</button>
+                <hr style="border-color:#1a1a2e;margin:15px 0;">
+                <div id="templateList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB: LOGS ==================== -->
+    <div id="tab-logs" class="tab-content">
+        <div class="card">
+            <h2>📜 Message Logs</h2>
+            <div class="row">
+                <input id="logChannelFilter" placeholder="Channel ID (optional)">
+                <button class="btn btn-outline" onclick="loadLogs()">🔍 Search</button>
+            </div>
+            <div id="logList">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_KEY = '123qwe@#';
+let channelMap = {};
+
+function showToast(msg, isError=false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    t.style.display = 'block';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.style.display = 'none', 3500);
+}
+
+function showTab(id) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-'+id).classList.add('active');
+    document.querySelector(`.tab-btn[onclick="showTab('${id}')"]`).classList.add('active');
+}
+
+// ==================== CHANNELS ====================
+async function loadChannels() {
+    try {
+        const res = await fetch('/api/channels');
+        const data = await res.json();
+        channelMap = {};
+        const sel = document.getElementById('sendChannel');
+        sel.innerHTML = '<option value="">Select Channel</option>';
+        const listDiv = document.getElementById('channelList');
+        listDiv.innerHTML = '';
+        data.forEach(ch => {
+            channelMap[ch.channel_id] = ch.channel_name;
+            const opt = document.createElement('option');
+            opt.value = ch.channel_id;
+            opt.textContent = `#${ch.channel_name}`;
+            sel.appendChild(opt);
+            const div = document.createElement('div');
+            div.className = 'channel-item';
+            div.innerHTML = `
+                <span><strong>#${ch.channel_name}</strong></span>
+                <div class="perms">
+                    <label><input type="checkbox" ${ch.can_send?'checked':''} onchange="updatePerm('${ch.channel_id}','can_send',this.checked)"> Send</label>
+                    <label><input type="checkbox" ${ch.can_attach?'checked':''} onchange="updatePerm('${ch.channel_id}','can_attach',this.checked)"> Attach</label>
+                    <label><input type="checkbox" ${ch.can_delete?'checked':''} onchange="updatePerm('${ch.channel_id}','can_delete',this.checked)"> Delete</label>
+                </div>
+            `;
+            listDiv.appendChild(div);
+        });
+    } catch(e) { showToast('❌ Error loading channels', true); }
+}
+
+async function updatePerm(chId, field, val) {
+    try {
+        await fetch(`/api/channels/${chId}`, {
+            method: 'PUT',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({[field]: val?1:0, channel_name: channelMap[chId] || ''})
+        });
+        showToast('✅ Updated');
+    } catch(e) { showToast('❌ Error', true); }
+}
+
+async function syncChannels() {
+    showToast('🔄 Syncing...');
+    setTimeout(loadChannels, 1500);
+}
+
+// ==================== SEND ====================
+async function sendMessage() {
+    const channel = document.getElementById('sendChannel').value;
+    const content = document.getElementById('sendContent').value;
+    const fileUrl = document.getElementById('sendFileUrl').value;
+    const color = document.getElementById('sendColor').value;
+    const title = document.getElementById('sendTitle').value;
+    const desc = document.getElementById('sendDesc').value;
+    const fieldsStr = document.getElementById('sendFields').value;
+    const image = document.getElementById('sendImage').value;
+    const footer = document.getElementById('sendFooter').value;
+
+    if(!channel) { showToast('❌ Select channel', true); return; }
+
+    let embed = {};
+    if(title || desc || fieldsStr || image || footer) {
+        embed = {
+            title, description: desc, color: color,
+            image: image, footer: footer,
+            fields: fieldsStr ? JSON.parse(fieldsStr) : []
+        };
+    }
+
+    const payload = { channel_id: channel, content, embed, file_url: fileUrl };
+
+    try {
+        const res = await fetch('/api/send', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'X-API-Key': API_KEY },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if(res.ok) {
+            showToast(`✅ Sent!`);
+            document.getElementById('sendContent').value = '';
+            document.getElementById('sendFileUrl').value = '';
+            document.getElementById('sendTitle').value = '';
+            document.getElementById('sendDesc').value = '';
+            document.getElementById('sendFields').value = '';
+            document.getElementById('sendImage').value = '';
+            document.getElementById('sendFooter').value = '';
+        } else {
+            showToast('❌ ' + (data.error || 'Failed'), true);
+        }
+    } catch(e) { showToast('❌ Network error', true); }
+}
+
+// ==================== PRODUCTS ====================
+async function loadProducts() {
+    try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        const div = document.getElementById('productList');
+        if(data.length === 0) { div.innerHTML = '<span style="color:#666;">No products.</span>'; return; }
+        div.innerHTML = data.map(p => `
+            <div class="product-item">
+                <div class="info">
+                    <strong>${p.name}</strong>
+                    <span style="font-size:13px;color:#888;">${p.category} | ${p.price} | ${p.validity}</span>
+                    <span style="font-size:12px;color:#555;">${p.features?.substring(0,50)}...</span>
+                </div>
+                <div>
+                    <span class="price">${p.price}</span>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) { document.getElementById('productList').innerHTML = '❌ Error'; }
+}
+
+async function addProduct() {
+    const name = document.getElementById('prodName').value;
+    const category = document.getElementById('prodCategory').value;
+    const price = document.getElementById('prodPrice').value;
+    const validity = document.getElementById('prodValidity').value;
+    const features = document.getElementById('prodFeatures').value;
+    const image = document.getElementById('prodImage').value;
+    const channel = document.getElementById('prodChannel').value;
+    if(!name) { showToast('❌ Name required', true); return; }
+    try {
+        const res = await fetch('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'X-API-Key': API_KEY },
+            body: JSON.stringify({name, category, price, validity, features, image_url: image, channel_id: channel})
+        });
+        if(res.ok) { showToast('✅ Product added'); loadProducts(); }
+        else showToast('❌ Failed', true);
+    } catch(e) { showToast('❌ Error', true); }
+}
+
+async function deleteProduct(id) {
+    if(!confirm('Delete this product?')) return;
+    try {
+        await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'X-API-Key': API_KEY } });
+        showToast('🗑️ Deleted'); loadProducts();
+    } catch(e) { showToast('❌ Error', true); }
+}
+
+// ==================== TEMPLATES ====================
+async function loadTemplates() {
+    try {
+        const res = await fetch('/api/templates');
+        const data = await res.json();
+        const sel = document.getElementById('loadTemplateSelect');
+        sel.innerHTML = '<option value="">Select Template</option>';
+        const listDiv = document.getElementById('templateList');
+        listDiv.innerHTML = '';
+        data.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.name;
+            opt.textContent = t.name;
+            sel.appendChild(opt);
+            const div = document.createElement('div');
+            div.style.cssText = 'padding:5px 0;border-bottom:1px solid #1a1a2e;font-size:13px;';
+            div.textContent = `📄 ${t.name}`;
+            listDiv.appendChild(div);
+        });
+    } catch(e) { /* ignore */ }
+}
+
+async function saveTemplate() {
+    const name = document.getElementById('tplName').value;
+    const content = document.getElementById('tplContent').value;
+    if(!name || !content) { showToast('❌ Name & content required', true); return; }
+    try {
+        await fetch('/api/templates', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'X-API-Key': API_KEY },
+            body: JSON.stringify({name, content})
+        });
+        showToast('✅ Template saved');
+        loadTemplates();
+        document.getElementById('tplName').value = '';
+        document.getElementById('tplContent').value = '';
+    } catch(e) { showToast('❌ Error', true); }
+}
+
+function loadSelectedTemplate() {
+    const sel = document.getElementById('loadTemplateSelect');
+    if(!sel.value) { showToast('❌ Select template', true); return; }
+    fetch('/api/templates').then(r => r.json()).then(data => {
+        const t = data.find(d => d.name === sel.value);
+        if(t) {
+            document.getElementById('sendContent').value = t.content;
+            showToast('✅ Loaded to Send tab');
+            showTab('send');
+        } else showToast('❌ Not found', true);
+    });
+}
+
+// ==================== LOGS ====================
+async function loadLogs() {
+    const channel = document.getElementById('logChannelFilter').value;
+    const url = channel ? `/api/logs?channel_id=${channel}` : '/api/logs';
+    tr
