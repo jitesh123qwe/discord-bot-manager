@@ -3,6 +3,7 @@ from discord.ext import commands
 import io
 import aiohttp
 import json
+import asyncio
 from config import BOT_TOKEN, ADMIN_ID
 from database import *
 
@@ -12,7 +13,6 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 @bot.event
 async def on_ready():
     print(f'✅ Bot Online: {bot.user}')
-    # Auto register channels
     for guild in bot.guilds:
         for ch in guild.channels:
             if isinstance(ch, (discord.TextChannel, discord.ForumChannel)):
@@ -23,7 +23,6 @@ async def on_ready():
 @bot.command(hidden=True)
 @commands.is_owner()
 async def api_send(ctx, channel_id: str, content: str = "", embed_json: str = "{}", file_url: str = ""):
-    """Send message with file"""
     channel = bot.get_channel(int(channel_id))
     if not channel:
         await ctx.send("❌ Channel not found")
@@ -82,7 +81,6 @@ async def api_send(ctx, channel_id: str, content: str = "", embed_json: str = "{
 @bot.command(hidden=True)
 @commands.is_owner()
 async def api_delete(ctx, channel_id: str, message_id: str):
-    """Delete message"""
     channel = bot.get_channel(int(channel_id))
     if not channel:
         await ctx.send("❌ Channel not found")
@@ -102,7 +100,6 @@ async def api_delete(ctx, channel_id: str, message_id: str):
 @bot.command(hidden=True)
 @commands.is_owner()
 async def api_pin(ctx, channel_id: str, message_id: str):
-    """Pin message"""
     channel = bot.get_channel(int(channel_id))
     if not channel:
         await ctx.send("❌ Channel not found")
@@ -116,7 +113,6 @@ async def api_pin(ctx, channel_id: str, message_id: str):
 
 @bot.command()
 async def sync_channels(ctx):
-    """Sync all channels"""
     if ctx.author.id != ADMIN_ID:
         return await ctx.send("❌ No permission")
     for ch in ctx.guild.channels:
